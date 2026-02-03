@@ -5,151 +5,182 @@ A simple API for downloading videos from YouTube (and other websites).
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Version](https://img.shields.io/badge/Version-1.0.0-blue)
 
-**Godot yt-dlp dev** — это удобная обертка (API) над популярной утилитой yt-dlp для Godot Engine 4. Плагин позволяет скачивать видео, аудио, получать информацию о медиа и искать контент на YouTube и других платформах прямо из вашего игры или приложения.
+**Godot yt-dlp dev** is a convenient wrapper (API) around the popular **yt-dlp** utility for **Godot Engine 4**. The plugin allows you to download video and audio, retrieve media information, search content on YouTube and other platforms directly from your game or application.
 
 > [!IMPORTANT]
-> Плагин автоматически скачивает необходимые бинарные файлы (yt-dlp и ffmpeg) при запуске команды YtDlp.setup()
+> The plugin automatically downloads the required binaries (**yt-dlp** and **ffmpeg**) when the `YtDlp.setup()` command is executed.
 
-# ✨ Возможности
-- 📥 Скачивание видео с выбором качества (1080p, 720p и т.д.).
-- 🎵 Извлечение аудио (mp3 и другие форматы).
-- ℹ️ Получение метаданных (информация о видео, доступные форматы).
-- 🔍 Поиск видео по запросу.
-- 🖼 Загрузка превью (thumbnails).
-- 🧵 Асинхронность: Все операции выполняются в потоках, не блокируя основной цикл игры.
+---
 
-# 📦 Установка и Настройка
-Скопируйте папку addons/godot-yt-dlp-dev в ваш проект.
+## ✨ Features
+- 📥 Video downloading with quality selection (1080p, 720p, etc.).
+- 🎵 Audio extraction (mp3 and other formats).
+- ℹ️ Metadata retrieval (video info, available formats).
+- 🔍 Video search by query.
+- 🖼 Thumbnail downloading.
+- 🧵 Asynchronous execution: all operations run in threads and do not block the main game loop.
 
-Перейдите в Project -> Project Settings -> Plugins и включите плагин.
+---
 
-## Первичная инициализация
-Перед использованием любых функций необходимо инициализировать плагин, чтобы он скачал или обновил исполняемые файлы (yt-dlp и ffmpeg).
+## 📦 Installation & Setup
+1. Copy the `addons/godot-yt-dlp-dev` folder into your project.
+2. Open **Project → Project Settings → Plugins** and enable the plugin.
+
+### Initial Setup
+Before using any functionality, you must initialize the plugin so it can download or update the required executables (**yt-dlp** and **ffmpeg**).
+
 ```gdscript
 func _ready():
-    # Подключаемся к сигналу завершения настройки
+    # Connect to the setup completion signal
     YtDlp.setup_completed.connect(_on_setup_completed)
-    
-    # Запускаем процесс настройки
+
+    # Start setup process
     YtDlp.setup()
 
 func _on_setup_completed():
-    print("Yt-dlp готов к работе!")
+    print("Yt-dlp is ready to use!")
 ```
 
-## 🚀 Использование
-Плагин предоставляет несколько синглтонов (Autoloads): `YtDlp`, `YtVideo`, `YtInfo`, `YtSearch` и `YtEvents`.
+---
 
-### 1. Скачивание видео (YtVideo)
-Используйте метод download для загрузки видео. Прогресс и результат приходят через сигналы YtEvents.
+## 🚀 Usage
+The plugin provides several singletons (Autoloads): `YtDlp`, `YtVideo`, `YtInfo`, `YtSearch`, and `YtEvents`.
+
+### 1. Video Downloading (YtVideo)
+Use the `download` method to download a video. Progress and results are delivered via `YtEvents` signals.
+
 ```gdscript
 func download_video(url: String):
-    # Подписка на прогресс и завершение
+    # Subscribe to progress and completion
     YtEvents.download_progressed.connect(_on_progress)
     YtEvents.download_completed.connect(_on_completed)
-    
-    # download(url, путь_сохранения, качество)
-    # Качество: 'best' или число (например, '1080')
+
+    # download(url, save_path, quality)
+    # Quality: 'best' or a number (e.g. '1080')
     YtVideo.download(url, OS.get_user_data_dir() + '/downloads/%(title)s.%(ext)s', "1080")
 
 func _on_progress(data: Dictionary):
-    # data содержит: percent, speed, eta
-    print("Скачано: %s, Скорость: %s" % [data['percent'], data['speed']])
+    # data contains: percent, speed, eta
+    print("Downloaded: %s, Speed: %s" % [data['percent'], data['speed']])
 
 func _on_completed(data: Dictionary):
-    print("Загрузка завершена!")
+    print("Download completed!")
 ```
 
-### 2. Скачивание аудио
+### 2. Audio Downloading
+
 ```gdscript
-# download_audio(url, путь, формат, качество_аудио)
+# download_audio(url, path, format, audio_quality)
 YtVideo.download_audio("https://youtu.be/...", OS.get_user_data_dir() + "/track.mp3", "mp3", 0)
 ```
 
-### 3. Получение информации и форматов (YtInfo)
-Чтобы узнать доступные разрешения видео перед скачиванием:
+---
+
+### 3. Video Information & Formats (YtInfo)
+To retrieve available video resolutions before downloading:
+
 ```gdscript
 func get_video_qualities(url: String):
     YtEvents.quality_processed.connect(func(qualities): print(qualities))
-    YtInfo.get_qualities(url) 
-    # Вернет массив строк: ["1080p", "720p", "480p", ...]
+    YtInfo.get_qualities(url)
+    # Returns an array of strings: ["1080p", "720p", "480p", ...]
 ```
 
-Чтобы получить полную JSON-информацию о видео:
+To retrieve full JSON information about a video:
+
 ```gdscript
-YtInfo.get_info(url) # Результат придет в сигнал YtEvents.info_processed
+YtInfo.get_info(url) # Result will be emitted via YtEvents.info_processed
 ```
 
-### 4. Поиск (YtSearch)
-Поиск видео.
+---
+
+### 4. Search (YtSearch)
+Search for videos.
+
 ```gdscript
 func search_youtube(query: String):
     YtEvents.search_collector.connect(_on_search_result)
-    # search(запрос, кол-во результатов, сервис)
+    # search(query, result_count, service)
     YtSearch.search(query, 5, "yt")
 
 func _on_search_result(json_string: String):
     var data = JSON.parse_string(json_string)
-    print("Найдено: ", data.get("title"))
+    print("Found: ", data.get("title"))
 ```
 
-### 5. Низкоуровневый доступ (YtCore)
-Если вам нужно выполнить специфическую команду `yt-dlp`, которой нет в высокоуровневых синглтонах, используйте `YtCore.execute`. Это универсальный метод для кастомных запросов.
+---
+
+### 5. Low-Level Access (YtCore)
+If you need to execute a specific `yt-dlp` command that is not available through the high-level singletons, use `YtCore.execute`. This is a universal method for custom requests.
+
 ```gdscript
-# Пример: Получение списка всех доступных форматов (без скачивания)
+# Example: Get a list of all available formats (without downloading)
 var args = ["--list-formats"]
-var result = YtCore.execute("URL_HERE", args, false) # stream = false для мгновенного результата
+var result = YtCore.execute("URL_HERE", args, false) # stream = false for instant result
 print(result)
 ```
 
-##📡 Справочник API
-### Синглтон YtDlp
-Управляет установкой зависимостей.
-- setup(): Запускает скачивание/обновление бинарников.
-- is_setup() -> bool: Возвращает true, если установка завершена.
-- Сигналы: setup_completed, _update_completed.
-### Синглтон YtVideo
-Методы для работы с медиа-контентом.
-- download(url: String, path: String, quality: String = 'best', args: Array = [...])
-- download_audio(url: String, path: String, format: String = 'mp3', quality: int = 0)
-- get_thumbnail(url: String, args: Array = [...]): Запрашивает URL обложки.
-### Синглтон YtInfo
-Методы для получения метаданных.
-- get_info(url: String): Полный дамп данных о видео.
-- get_qualities(url: String): Список доступных высот видео (1080, 720 и т.д.).
+---
 
-### Синглтон YtEvents (Сигналы)
-Центральный узел событий. Подключайтесь к нему для получения ответов.
-| Сигнал | Описание |
+## 📡 API Reference
+
+### YtDlp Singleton
+Manages dependency installation.
+- `setup()` – Starts downloading/updating binaries.
+- `is_setup() -> bool` – Returns `true` if setup is completed.
+- Signals: `setup_completed`, `_update_completed`.
+
+### YtVideo Singleton
+Media-related methods.
+- `download(url: String, path: String, quality: String = 'best', args: Array = [...])`
+- `download_audio(url: String, path: String, format: String = 'mp3', quality: int = 0)`
+- `get_thumbnail(url: String, args: Array = [...])` – Requests thumbnail URL.
+
+### YtInfo Singleton
+Metadata retrieval methods.
+- `get_info(url: String)` – Full video data dump.
+- `get_qualities(url: String)` – List of available video heights (1080, 720, etc.).
+
+### YtEvents Singleton (Signals)
+Central event hub. Connect to it to receive responses.
+
+| Signal | Description |
 | :--- | ---: |
-| download_progressed | Прогресс скачивания |
-| download_completed | Скачивание завершено |
-| download_logs | Логи |
-| info_processed | Полная информация о видео |
-| quality_processed | Список доступных качеств |
-| search_collector | Одиночный результат поиска |
-| search_logs | Логи |
-| get_thumbnail | URL |
-| error_occurred | Текст ошибки |
+| download_progressed | Download progress |
+| download_completed | Download completed |
+| download_logs | Logs |
+| info_processed | Full video information |
+| quality_processed | Available qualities |
+| search_collector | Single search result |
+| search_logs | Logs |
+| get_thumbnail | Thumbnail URL |
+| error_occurred | Error message |
 
-## ⚙️ Конфигурация и зависимости
-Плагин сохраняет исполняемые файлы в папку пользовательских данных (user://):
+---
 
-- Windows: yt-dlp.exe, ffmpeg.exe, ffprobe.exe.
-- Linux/macOS: yt-dlp_linux / yt-dlp_macos (автоматически получают права chmod +x).
+## ⚙️ Configuration & Dependencies
+The plugin stores executable files in the user data directory (`user://`).
+
+- **Windows**: `yt-dlp.exe`, `ffmpeg.exe`, `ffprobe.exe`
+- **Linux/macOS**: `yt-dlp_linux` / `yt-dlp_macos` (automatically granted `chmod +x` permissions)
 
 > [!NOTE]
-> Для работы на Windows плагин автоматически скачивает и распаковывает FFmpeg, что необходимо для объединения видео и аудио потоков при скачивании в высоком качестве.
+> On Windows, the plugin automatically downloads and extracts **FFmpeg**, which is required to merge video and audio streams when downloading high-quality formats.
 
-## ⚠️ Известные ограничения
-Функции зависят от обновлений yt-dlp. Если YouTube изменит API, используйте setup() для обновления бинарного файла.
+---
 
-## 🤝 Хотите помочь проекту?
-Проект **Godot yt-dlp dev** открыт для ваших идей и улучшений! Если вы хотите добавить новую функцию или исправить баг, я буду рад вашим Pull Requests.
+## ⚠️ Known Limitations
+Functionality depends on **yt-dlp** updates. If YouTube changes its API, run `setup()` to update the binary.
 
-### Что можно реализовать сейчас (из TODO):
-* **Download Queue**: Система очереди, чтобы скачивать десятки видео по порядку.
-* **Built-in UI**: A ready-made Node for quick integration of a download window into any game.
-* **Playlist support**: Logic for batch downloading all videos from a single link.
+---
 
-> Если у вас есть идея, которой нет в списке — создайте **Issue**, и мы обсудим её реализацию!
+## 🤝 Want to Contribute?
+The **Godot yt-dlp dev** project is open to ideas and improvements! Pull Requests for new features or bug fixes are welcome.
+
+### Possible TODOs
+- **Download Queue**: Queue system to download dozens of videos sequentially.
+- **Built-in UI**: Ready-made Node for quick integration of a download window into any game.
+- **Playlist Support**: Batch downloading all videos from a single playlist link.
+
+> If you have an idea not listed above, create an **Issue** and we’ll discuss its implementation.
+
