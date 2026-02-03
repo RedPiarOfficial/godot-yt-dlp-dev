@@ -140,5 +140,7 @@ func _on_search_result(json_string: String):
 
 ### Что можно реализовать сейчас (из TODO):
 * **Download Queue**: Система очереди, чтобы скачивать десятки видео по порядку.
+* **Built-in UI**: A ready-made Node for quick integration of a download window into any game.
+* **Playlist support**: Logic for batch downloading all videos from a single link.
 
 > Если у вас есть идея, которой нет в списке — создайте **Issue**, и мы обсудим её реализацию!
