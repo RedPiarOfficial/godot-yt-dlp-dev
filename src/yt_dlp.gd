@@ -3,7 +3,7 @@ extends Node
 signal setup_completed
 signal _update_completed
 
-const Downloader = preload("res://addons/godot-yt-dlp/src/downloader.gd")
+const Downloader = preload("res://addons/godot-yt-dlp-dev/src/downloader.gd")
 
 const yt_dlp_sources: Dictionary = {
 	"Linux": "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux",
