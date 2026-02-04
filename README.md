@@ -3,7 +3,7 @@ A simple API for downloading videos from YouTube (and other websites).
 
 ![Godot v4.x](https://img.shields.io/badge/Godot-v4.5+-478cbf?logo=godot-engine&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green)
-![Version](https://img.shields.io/badge/Version-1.0.0-blue)
+![Version](https://img.shields.io/badge/Version-1.1.0-blue)
 
 **Godot yt-dlp dev** is a convenient wrapper (API) around the popular **yt-dlp** utility for **Godot Engine 4**. The plugin allows you to download video and audio, retrieve media information, search content on YouTube and other platforms directly from your game or application.
 
