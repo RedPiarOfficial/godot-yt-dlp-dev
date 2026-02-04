@@ -1,29 +1,32 @@
 extends Node
 
-var _thread = Thread.new()
 func get_info(url: String):
 	if url.is_empty() or not url.begins_with('http'):
 		push_error('url empty or url not http(s)')
 		return
 		
-	_thread.start(_get_info.bind(url))
+	YtThreadManager.create_thread(_get_info.bind(url), 'YtInfo')
 	
 func _get_info(url):
 	var data = YtCore.execute(url, ["--dump-json", "--no-playlist", "--skip-download", "--no-warnings"])
+	YtThreadManager.close_thread()
+	
 	if data.find_key('Type'):
 		_send_error.call_deferred(data['msg'])
 		return
 	_info_load.call_deferred(data)
 	
 func _info_load(data: Dictionary):
-	_thread.wait_to_finish()
 	YtEvents.info_processed.emit.call_deferred(data)
 
 func get_qualities(url: String):
-	_thread.start(_get_qualities.bind(url))
+	YtThreadManager.create_thread(_get_qualities.bind(url), 'YtInfo:qual')
 	
 func _get_qualities(url: String):
 	var data = YtCore.execute(url, ["--dump-json", "--no-playlist", "--skip-download", "--no-warnings"])
+	
+	YtThreadManager.close_thread()
+	
 	if data.find_key('Type'):
 		_send_error.call_deferred(data['msg'])
 		return
@@ -45,9 +48,7 @@ func _get_qualities(url: String):
 	_qualities_load.call_deferred(quality_selector)
 	
 func _qualities_load(data: Array):
-	_thread.wait_to_finish()
 	YtEvents.quality_processed.emit.call_deferred(data)
 	
 func _send_error(msg: String):
-	_thread.wait_to_finish()
 	YtEvents.error_occurred.emit.call_deferred(msg)

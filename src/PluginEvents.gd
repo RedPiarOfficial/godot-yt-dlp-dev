@@ -16,6 +16,7 @@ signal quality_processed(data: Dictionary)
 # Signals for YtSearch
 signal search_collector
 signal search_logs
+signal search_completed
 
 # Errors
 signal error_occurred(msg: String)
