@@ -1,0 +1,6 @@
+.export_presets.cfg
+.DS_Store
+.Thumbs.db
+*.log
+*.uid
+examples/*
