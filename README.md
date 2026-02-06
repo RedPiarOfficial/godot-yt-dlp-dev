@@ -10,6 +10,9 @@ A simple API for downloading videos from YouTube (and other websites).
 > [!IMPORTANT]
 > The plugin automatically downloads the required binaries (**yt-dlp** and **ffmpeg**) when the `YtDlp.setup()` command is executed.
 
+> [!CAUTION]
+> READ BEFORE ENABLING: You may see errors like Identifier not found immediately after adding the plugin. This is normal Godot behavior. To fix this, you must enable the plugin in the Plugins tab and then restart Godot. This allows the engine to properly register global Singletons.
+
 ---
 
 ## ✨ Features
@@ -25,20 +28,22 @@ A simple API for downloading videos from YouTube (and other websites).
 ## 📦 Installation & Setup
 1. Copy the `addons/godot-yt-dlp-dev` folder into your project.
 2. Open **Project → Project Settings → Plugins** and enable the plugin.
+> [!CAUTION]
+> READ BEFORE ENABLING: You may see errors like Identifier not found immediately after adding the plugin. This is normal Godot behavior. To fix this, you must enable the plugin in the Plugins tab and then restart Godot. This allows the engine to properly register global Singletons.
 
 ### Initial Setup
 Before using any functionality, you must initialize the plugin so it can download or update the required executables (**yt-dlp** and **ffmpeg**).
 
 ```gdscript
 func _ready():
-    # Connect to the setup completion signal
-    YtDlp.setup_completed.connect(_on_setup_completed)
+	# Connect to the setup completion signal
+	YtDlp.setup_completed.connect(_on_setup_completed)
 
-    # Start setup process
-    YtDlp.setup()
+	# Start setup process
+	YtDlp.setup()
 
 func _on_setup_completed():
-    print("Yt-dlp is ready to use!")
+	print("Yt-dlp is ready to use!")
 ```
 
 ---
@@ -51,20 +56,20 @@ Use the `download` method to download a video. Progress and results are delivere
 
 ```gdscript
 func download_video(url: String):
-    # Subscribe to progress and completion
-    YtEvents.download_progressed.connect(_on_progress)
-    YtEvents.download_completed.connect(_on_completed)
+	# Subscribe to progress and completion
+	YtEvents.download_progressed.connect(_on_progress)
+	YtEvents.download_completed.connect(_on_completed)
 
-    # download(url, save_path, quality)
-    # Quality: 'best' or a number (e.g. '1080')
-    YtVideo.download(url, OS.get_user_data_dir() + '/downloads/%(title)s.%(ext)s', "1080")
+	# download(url, save_path, quality)
+	# Quality: 'best' or a number (e.g. '1080')
+	YtVideo.download(url, OS.get_user_data_dir() + '/downloads/%(title)s.%(ext)s', "1080")
 
 func _on_progress(data: Dictionary):
-    # data contains: percent, speed, eta
-    print("Downloaded: %s, Speed: %s" % [data['percent'], data['speed']])
+	# data contains: percent, speed, eta
+	print("Downloaded: %s, Speed: %s" % [data['percent'], data['speed']])
 
 func _on_completed(data: Dictionary):
-    print("Download completed!")
+	print("Download completed!")
 ```
 
 ### 2. Audio Downloading
@@ -81,9 +86,9 @@ To retrieve available video resolutions before downloading:
 
 ```gdscript
 func get_video_qualities(url: String):
-    YtEvents.quality_processed.connect(func(qualities): print(qualities))
-    YtInfo.get_qualities(url)
-    # Returns an array of strings: ["1080p", "720p", "480p", ...]
+	YtEvents.quality_processed.connect(func(qualities): print(qualities))
+	YtInfo.get_qualities(url)
+	# Returns an array of strings: ["1080p", "720p", "480p", ...]
 ```
 
 To retrieve full JSON information about a video:
@@ -99,13 +104,13 @@ Search for videos.
 
 ```gdscript
 func search_youtube(query: String):
-    YtEvents.search_collector.connect(_on_search_result)
-    # search(query, result_count, service)
-    YtSearch.search(query, 5, "yt")
+	YtEvents.search_collector.connect(_on_search_result)
+	# search(query, result_count, service)
+	YtSearch.search(query, 5, "yt")
 
 func _on_search_result(json_string: String):
-    var data = JSON.parse_string(json_string)
-    print("Found: ", data.get("title"))
+	var data = JSON.parse_string(json_string)
+	print("Found: ", data.get("title"))
 ```
 
 ---
@@ -183,4 +188,3 @@ The **Godot yt-dlp dev** project is open to ideas and improvements! Pull Request
 - **Playlist Support**: Batch downloading all videos from a single playlist link.
 
 > If you have an idea not listed above, create an **Issue** and we’ll discuss its implementation.
-
